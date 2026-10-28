@@ -1,0 +1,44 @@
+[package]
+name = "deckcraft-android"
+description = "DeckCraft for Android (eframe NativeActivity, GPU rendering through wgpu on Vulkan with an OpenGL ES fallback)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+# Built as a shared library that `NativeActivity` loads (`libdeckcraft_android.so`); see README.md.
+# `rlib` too, so the platform-independent file browser is unit-tested on the host.
+[lib]
+name = "deckcraft_android"
+crate-type = ["cdylib", "rlib"]
+
+# Not `workspace = true`: the workspace forbids unsafe code, and Android needs two small exceptions
+# that can't be expressed safely: the `#[unsafe(no_mangle)] android_main` entry point that
+# NativeActivity looks up, and one JNI call into the Java activity (`jni_bridge.rs`). Both carry an
+# explicit `#[allow(unsafe_code)]`; everything else is denied as in the rest of the workspace.
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+cognitive_complexity = "deny"
+too_many_arguments = "deny"
+wildcard_imports = "deny"
+dbg_macro = "warn"
+todo = "warn"
+
+[dependencies]
+deckcraft-engine = { workspace = true }
+deckcraft-ui-egui = { workspace = true }
+deckcraft-media = { workspace = true }
+egui = { workspace = true }
+log = { workspace = true }
+serde_json = { workspace = true }
+
+[target.'cfg(target_os = "android")'.dependencies]
+# `wgpu`: Vulkan on most devices, OpenGL ES 3 where Vulkan is missing or broken.
+eframe = { workspace = true, features = ["default_fonts", "wgpu", "android-native-activity"] }
+winit = { version = "0.30", default-features = false, features = ["android-native-activity", "rwh_06"] }
+android_logger = { version = "0.15", default-features = false }
+jni = "0.21"
+# AAudio output for slide-show sound and media.
+cpal = "0.16"
