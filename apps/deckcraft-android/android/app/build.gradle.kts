@@ -11,7 +11,6 @@ plugins {
 
 val repoRoot: File = rootDir.resolve("../../..").canonicalFile
 val rustJniLibs: File = layout.buildDirectory.dir("rustJniLibs").get().asFile
-val generatedRes: File = layout.buildDirectory.dir("generated/deckcraftRes").get().asFile
 val abis: List<String> = (findProperty("deckcraft.abis") as String? ?: "arm64-v8a,x86_64")
     .split(',').map { it.trim() }.filter { it.isNotEmpty() }
 val skipCargo: Boolean = (findProperty("deckcraft.skipCargo") as String?).toBoolean()
@@ -49,7 +48,6 @@ android {
     sourceSets {
         getByName("main") {
             jniLibs.srcDir(rustJniLibs)
-            res.srcDir(generatedRes)
         }
     }
 
@@ -58,19 +56,6 @@ android {
         // download, unpacked once at install.
         jniLibs { useLegacyPackaging = true }
     }
-}
-
-// The launcher icon comes from the repository's icon set, so the Android build never carries a
-// second copy of it.
-val copyLauncherIcons by tasks.registering(Copy::class) {
-    val icons = repoRoot.resolve("assets/app-icon/hicolor")
-    mapOf("mdpi" to 48, "hdpi" to 64, "xhdpi" to 128, "xxhdpi" to 256, "xxxhdpi" to 256).forEach { (density, size) ->
-        from(icons.resolve("${size}x$size/apps/ai.storyteller.deckcraft.png")) {
-            into("mipmap-$density")
-            rename { "ic_launcher.png" }
-        }
-    }
-    into(generatedRes)
 }
 
 val cargoBuild by tasks.registering(Exec::class) {
@@ -84,5 +69,5 @@ val cargoBuild by tasks.registering(Exec::class) {
 }
 
 tasks.named("preBuild") {
-    dependsOn(copyLauncherIcons, cargoBuild)
+    dependsOn(cargoBuild)
 }

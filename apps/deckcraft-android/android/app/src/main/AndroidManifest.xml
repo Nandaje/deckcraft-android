@@ -21,7 +21,7 @@
     <application
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:hardwareAccelerated="true"
         android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
@@ -32,6 +32,9 @@
              process and can't be restarted by an activity re-creation. -->
         <activity
             android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:exported="true"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
